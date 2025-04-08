@@ -64,4 +64,5 @@ class DirectAbsoluteCost:
         res, valid, weight, F_p2D, info = self.residuals(
             T_w2q, camera, p3D, F_ref, F_query, confidences, True)
         J, _ = self.jacobian(T_w2q, camera, *info)
+        J.masked_fill_(~valid.unsqueeze(-1).unsqueeze(-1), 0.0)
         return res, valid, weight, F_p2D, J
