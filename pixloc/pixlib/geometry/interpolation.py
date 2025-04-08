@@ -64,7 +64,7 @@ def interpolate_tensor_bilinear(tensor, pts, return_gradients: bool = False):
         batched = True
 
     b, c, h, w = tensor.shape
-    scale = torch.tensor([w-1, h-1]).to(pts)
+    scale = torch.tensor([w, h]).to(pts)
     pts = (pts / scale) * 2 - 1
     pts = pts.clamp(min=-2, max=2)  # ideally use the mask instead
     interpolated = torch.nn.functional.grid_sample(
