@@ -39,7 +39,8 @@ class ClassicOptimizer(BaseOptimizer):
             cost_i = self.loss_fn((res.detach()**2).sum(-1))[0]
             if w_unc_i is not None:
                 cost_i *= w_unc_i.detach()
-            valid_i &= mask
+            if mask is not None:
+                valid_i &= mask
             cost_best = masked_mean(cost_i, valid_i, -1)
 
         for i in range(self.conf.num_iters):
@@ -59,7 +60,7 @@ class ClassicOptimizer(BaseOptimizer):
                     J, J_scaling = self.J_scaling(J, J_scaling, valid)
                 g, H = self.build_system(J, res, weights)
 
-            delta = optimizer_step(g, H, lambda_.unqueeze(-1), mask=~failed)
+            delta = optimizer_step(g, H, lambda_.unsqueeze(-1), mask=~failed)
             if self.conf.jacobi_scaling:
                 delta = delta * J_scaling
 
@@ -69,7 +70,7 @@ class ClassicOptimizer(BaseOptimizer):
 
             # compute the new cost and update if it decreased
             with torch.no_grad():
-                res = self.cost_fn.residual(T_new, *args)[0]
+                res = self.cost_fn.residuals(T_new, *args)[0]
                 cost_new = self.loss_fn((res**2).sum(-1))[0]
                 cost_new = masked_mean(cost_new, valid, -1)
             accept = cost_new < cost_best
