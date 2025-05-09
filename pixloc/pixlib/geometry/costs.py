@@ -100,8 +100,8 @@ class DirectAbsoluteCost:
 
         res, valid, weight, F_p2D, info, _ = self.residuals(
             T_w2q, camera, p3D, F_ref, F_query, confidences, True)
-        J2, J2_p2D_T = self.numerical_jacobian(
-            T_w2q, camera, p3D, F_ref, F_query, confidences)
+        # J2, J2_p2D_T = self.numerical_jacobian(
+        #     T_w2q, camera, p3D, F_ref, F_query, confidences)
         # print("J numerical")
         # print(J2)
         J, J_p2D_T = self.jacobian(T_w2q, camera, *info)

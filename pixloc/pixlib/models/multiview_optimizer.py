@@ -75,8 +75,8 @@ class ClassicMultiviewOptimizer(BaseModel):
         Hess = weights[..., None, None] * Hess
         Hess = Hess.sum(-3)  # ... M x 6 x6
 
-        grad = grad.mean(-2) # ... x 6
-        Hess = Hess.mean(-3)  # ... x 6 x 6
+        grad = grad.sum(-2) # ... x 6
+        Hess = Hess.sum(-3)  # ... x 6 x 6
         return grad, Hess
 
     def _forward(self, data: Dict):

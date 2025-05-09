@@ -105,8 +105,8 @@ class DirectAbsoluteCostMultiview:
         res, valid, weight, F_p2D, info = self.residuals(
             T_o2w, T_w2q, camera, p3D, F_ref, F_query, confidences, True)
 
-        J2 = self.numerical_jacobian(
-            T_o2w, T_w2q, camera, p3D, F_ref, F_query, confidences)
+        # J2 = self.numerical_jacobian(
+        #     T_o2w, T_w2q, camera, p3D, F_ref, F_query, confidences)
         # print("J numerical")
         # print(J2[0])
         J, _ = self.jacobian(T_o2w, T_w2q, camera, *info)
