@@ -42,6 +42,7 @@ class ClassicOptimizer(BaseOptimizer):
             if mask is not None:
                 valid_i &= mask
             cost_best = masked_mean(cost_i, valid_i, -1)
+            print(cost_best)
 
         for i in range(self.conf.num_iters):
             if recompute:
@@ -79,6 +80,8 @@ class ClassicOptimizer(BaseOptimizer):
             T = Pose(torch.where(accept[..., None], T_new._data, T._data))
             cost_best = torch.where(accept, cost_new, cost_best)
             recompute = accept.any()
+            if recompute:
+                print(cost_best)
 
             self.log(i=i, T_init=T_init, T=T, T_delta=T_delta, cost=cost,
                      valid=valid, w_unc=w_unc, w_loss=w_loss, accept=accept,
