@@ -28,7 +28,7 @@ class ClassicMultiviewOptimizer(BaseModel):
             mode='cubic',
             pad=4,
         ),
-        grad_stop_criteria=1e-4,
+        grad_stop_criteria=1e-3,
         dt_stop_criteria=5e-3,  # in meters
         dR_stop_criteria=5e-2,  # in degrees
     )
@@ -94,6 +94,7 @@ class ClassicMultiviewOptimizer(BaseModel):
              W_ref_query: Optional[Tuple[Tensor, Tensor]] = None):
         T = T_init_wo
         J_scaling = None
+        cost_sequence = []
         if self.conf.normalize_features:
             F_ref = torch.nn.functional.normalize(F_ref, dim=-1) # across feature dim
         args = (T_cw, cameras, p3D, F_ref, F_query, W_ref_query)
@@ -112,9 +113,9 @@ class ClassicMultiviewOptimizer(BaseModel):
                 cost_i *= w_unc_i.detach()
             if mask is not None:
                 valid_i &= mask
-            cost_best = masked_mean(cost_i, valid_i, -1) # for each view all valid points
-            print(cost_best)
-            cost_best = cost_best.mean(-1) # together for all views
+            cost_i_all = masked_mean(cost_i, valid_i, -1) # for each view all valid points
+            cost_best = cost_i_all.mean(-1) # together for all views
+            cost_sequence.append(cost_i_all)
 
         for i in range(self.conf.num_iters):
             if recompute:
@@ -153,7 +154,7 @@ class ClassicMultiviewOptimizer(BaseModel):
             cost_best = torch.where(accept, cost_new, cost_best)
             recompute = accept.any()
             if recompute:
-                print(cost_new_all)
+                cost_sequence.append(cost_new_all)
 
             self.log(i=i, T_init=T_init_wo, T=T, T_delta=T_delta, cost=cost,
                      valid=valid, w_unc=w_unc, w_loss=w_loss, accept=accept,
@@ -170,7 +171,7 @@ class ClassicMultiviewOptimizer(BaseModel):
         if failed.any():
             logger.debug('One batch element had too few valid points.')
 
-        return T, failed
+        return T, failed, cost_sequence
     
     def loss(self, pred, data):
         raise NotImplementedError
