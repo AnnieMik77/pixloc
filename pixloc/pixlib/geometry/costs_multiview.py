@@ -1,7 +1,6 @@
 import torch
 from typing import Optional, Tuple, List
 from torch import Tensor
-from zmq import device
 
 from . import Pose, Camera
 from .optimization import J_normalization
